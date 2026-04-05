@@ -42,7 +42,7 @@ export default function WhatIfForm() {
           disabled={loading || !amount}
           className="bg-gray-900 text-white px-4 py-2 rounded-md text-sm hover:bg-gray-800 disabled:opacity-50 transition-colors"
         >
-          {loading ? '...' : 'Calculate'}
+          {loading ? 'Calculating...' : 'Calculate'}
         </button>
       </form>
 
@@ -55,7 +55,7 @@ export default function WhatIfForm() {
           </p>
           <div className="flex gap-6 mt-2 text-sm text-gray-500">
             <span>Current net: {formatCurrency(result.currentNet)}</span>
-            <span>After: {formatCurrency(result.afterNet)}</span>
+            <span>After: <span className={result.afterNet >= 0 ? 'text-green-600' : 'text-red-600'}>{formatCurrency(result.afterNet)}</span></span>
             <span>Impact: {result.impact >= 0 ? '+' : '-'}{formatCurrency(result.impact)}</span>
           </div>
           <button onClick={reset} className="text-xs text-gray-400 hover:text-gray-600 mt-1">Clear</button>

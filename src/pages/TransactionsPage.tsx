@@ -86,8 +86,15 @@ export default function TransactionsPage() {
       {/* Table */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
         {loading ? (
-          <div className="p-8 text-center">
-            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mx-auto" />
+          <div className="p-4 space-y-3">
+            {[1, 2, 3, 4, 5].map(i => (
+              <div key={i} className="flex items-center gap-4">
+                <div className="h-4 bg-gray-200 animate-pulse rounded w-20" />
+                <div className="h-4 bg-gray-200 animate-pulse rounded flex-1" />
+                <div className="h-4 bg-gray-200 animate-pulse rounded w-24" />
+                <div className="h-4 bg-gray-200 animate-pulse rounded w-20" />
+              </div>
+            ))}
           </div>
         ) : transactions.length === 0 ? (
           <div className="p-8 text-center text-sm text-gray-400">No transactions found.</div>
@@ -161,21 +168,33 @@ export default function TransactionsPage() {
           >
             ←
           </button>
-          {Array.from({ length: Math.min(pagination.pages, 7) }, (_, i) => {
-            const p = i + 1;
-            return (
-              <button
-                key={p}
-                onClick={() => setPage(p)}
-                className={`px-3 py-1 text-sm rounded ${
-                  p === page ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                {p}
-              </button>
+          {(() => {
+            const total = pagination.pages;
+            const delta = 2;
+            const pages: (number | '...')[] = [];
+            const left = Math.max(2, page - delta);
+            const right = Math.min(total - 1, page + delta);
+            pages.push(1);
+            if (left > 2) pages.push('...');
+            for (let i = left; i <= right; i++) pages.push(i);
+            if (right < total - 1) pages.push('...');
+            if (total > 1) pages.push(total);
+            return pages.map((p, idx) =>
+              p === '...' ? (
+                <span key={`ellipsis-${idx}`} className="text-gray-400">...</span>
+              ) : (
+                <button
+                  key={p}
+                  onClick={() => setPage(p as number)}
+                  className={`px-3 py-1 text-sm rounded ${
+                    p === page ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  {p}
+                </button>
+              )
             );
-          })}
-          {pagination.pages > 7 && <span className="text-gray-400">...</span>}
+          })()}
           <button
             onClick={() => setPage(p => Math.min(pagination.pages, p + 1))}
             disabled={page >= pagination.pages}

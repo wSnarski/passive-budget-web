@@ -52,11 +52,12 @@ export default function RecurringList({ patterns, loading, onConfirm, onDismiss 
         </div>
         {isLowConfidence && (
           <div className="ml-4 mt-1">
+            <p className="text-xs text-gray-400 mb-1">Not sure about this one?</p>
             <button onClick={() => onConfirm(p.id)} className="text-xs text-green-600 hover:text-green-700 font-medium mr-3">
-              Confirm
+              Yes, it's recurring
             </button>
             <button onClick={() => onDismiss(p.id)} className="text-xs text-red-600 hover:text-red-700 font-medium">
-              Dismiss
+              No, dismiss
             </button>
           </div>
         )}
