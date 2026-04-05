@@ -11,7 +11,7 @@ export default function TransactionsPage() {
   const [endDate, setEndDate] = useState('');
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editCategory, setEditCategory] = useState('');
-  const limit = 20;
+  const limit = 25;
 
   const filters = useMemo(() => ({
     accountId: accountId || undefined,
@@ -31,96 +31,117 @@ export default function TransactionsPage() {
     }
   };
 
+  const clearFilters = () => {
+    setAccountId('');
+    setCategory('');
+    setStartDate('');
+    setEndDate('');
+    setPage(1);
+  };
+
+  const hasFilters = accountId || category || startDate || endDate;
+
   return (
-    <div className="space-y-4">
-      <h1 className="text-xl font-bold text-gray-900">Transactions</h1>
+    <div>
+      <h1 className="text-2xl font-semibold text-gray-900 mb-6">Transactions</h1>
 
       {/* Filters */}
-      <div className="bg-white rounded-lg border border-gray-200 p-4">
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <select
-            value={accountId}
-            onChange={e => { setAccountId(e.target.value); setPage(1); }}
-            className="rounded-md border border-gray-300 px-3 py-2 text-sm outline-none"
-          >
-            <option value="">All accounts</option>
-            {accounts.map(a => (
-              <option key={a.id} value={a.id}>{a.name}</option>
-            ))}
-          </select>
-          <input
-            type="text"
-            placeholder="Category"
-            value={category}
-            onChange={e => { setCategory(e.target.value); setPage(1); }}
-            className="rounded-md border border-gray-300 px-3 py-2 text-sm outline-none"
-          />
-          <input
-            type="date"
-            value={startDate}
-            onChange={e => { setStartDate(e.target.value); setPage(1); }}
-            className="rounded-md border border-gray-300 px-3 py-2 text-sm outline-none"
-          />
-          <input
-            type="date"
-            value={endDate}
-            onChange={e => { setEndDate(e.target.value); setPage(1); }}
-            className="rounded-md border border-gray-300 px-3 py-2 text-sm outline-none"
-          />
-        </div>
+      <div className="flex flex-wrap items-center gap-3 mb-6">
+        <select
+          value={accountId}
+          onChange={e => { setAccountId(e.target.value); setPage(1); }}
+          className="px-3 py-2 border border-gray-300 rounded-md text-sm"
+        >
+          <option value="">All accounts</option>
+          {accounts.map(a => (
+            <option key={a.id} value={a.id}>{a.name}</option>
+          ))}
+        </select>
+        <input
+          type="text"
+          placeholder="Category"
+          value={category}
+          onChange={e => { setCategory(e.target.value); setPage(1); }}
+          className="px-3 py-2 border border-gray-300 rounded-md text-sm w-40"
+        />
+        <input
+          type="date"
+          value={startDate}
+          onChange={e => { setStartDate(e.target.value); setPage(1); }}
+          className="px-3 py-2 border border-gray-300 rounded-md text-sm w-36"
+        />
+        <input
+          type="date"
+          value={endDate}
+          onChange={e => { setEndDate(e.target.value); setPage(1); }}
+          className="px-3 py-2 border border-gray-300 rounded-md text-sm w-36"
+        />
+        {hasFilters && (
+          <button onClick={clearFilters} className="text-sm text-gray-500 hover:text-gray-700">
+            Reset
+          </button>
+        )}
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
         {loading ? (
           <div className="p-8 text-center">
-            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-indigo-600 mx-auto" />
+            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mx-auto" />
           </div>
         ) : transactions.length === 0 ? (
-          <div className="p-8 text-center text-sm text-gray-500">No transactions found.</div>
+          <div className="p-8 text-center text-sm text-gray-400">No transactions found.</div>
         ) : (
           <table className="w-full">
             <thead>
-              <tr className="border-b border-gray-100 text-left text-xs font-medium text-gray-500 uppercase tracking-wide">
-                <th className="px-4 py-3">Date</th>
-                <th className="px-4 py-3">Description</th>
-                <th className="px-4 py-3">Category</th>
-                <th className="px-4 py-3 text-right">Amount</th>
+              <tr className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-200">
+                <th className="px-4 pb-3 pt-4 w-28">Date</th>
+                <th className="px-4 pb-3 pt-4">Name</th>
+                <th className="px-4 pb-3 pt-4 w-32">Category</th>
+                <th className="px-4 pb-3 pt-4 w-28 text-right">Amount</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-50">
+            <tbody>
               {transactions.map(t => (
-                <tr key={t.id} className={`hover:bg-gray-50 ${t.isInternalTransfer ? 'opacity-50' : ''}`}>
-                  <td className="px-4 py-3 text-sm text-gray-600 whitespace-nowrap">{formatDate(t.date)}</td>
+                <tr
+                  key={t.id}
+                  className={`border-b border-gray-50 hover:bg-gray-50 transition-colors ${
+                    t.isInternalTransfer ? 'text-gray-400' : ''
+                  }`}
+                >
+                  <td className="px-4 py-3 text-sm text-gray-600">{formatDate(t.date)}</td>
                   <td className="px-4 py-3">
-                    <p className="text-sm text-gray-900">{t.merchantName || t.name}</p>
-                    {t.pending && <span className="text-xs text-yellow-600">Pending</span>}
-                    {t.isInternalTransfer && <span className="text-xs text-gray-400 ml-1">Transfer</span>}
+                    <span className="text-sm font-medium text-gray-900">
+                      {t.merchantName || t.name}
+                    </span>
+                    {t.pending && <span className="text-xs text-yellow-600 ml-1">(pending)</span>}
+                    {t.isInternalTransfer && <span className="text-xs text-gray-400 ml-1">transfer</span>}
                   </td>
                   <td className="px-4 py-3">
                     {editingId === t.id ? (
-                      <div className="flex gap-1">
-                        <input
-                          type="text"
-                          value={editCategory}
-                          onChange={e => setEditCategory(e.target.value)}
-                          onKeyDown={e => e.key === 'Enter' && handleRecategorize(t.id)}
-                          className="rounded border border-gray-300 px-2 py-1 text-xs w-28 outline-none"
-                          autoFocus
-                        />
-                        <button onClick={() => handleRecategorize(t.id)} className="text-xs text-indigo-600">Save</button>
-                        <button onClick={() => setEditingId(null)} className="text-xs text-gray-400">Cancel</button>
-                      </div>
+                      <input
+                        type="text"
+                        value={editCategory}
+                        onChange={e => setEditCategory(e.target.value)}
+                        onKeyDown={e => {
+                          if (e.key === 'Enter') handleRecategorize(t.id);
+                          if (e.key === 'Escape') setEditingId(null);
+                        }}
+                        onBlur={() => handleRecategorize(t.id)}
+                        className="text-sm border border-blue-300 rounded px-2 py-1 w-full focus:ring-2 focus:ring-blue-500 outline-none"
+                        autoFocus
+                      />
                     ) : (
                       <button
                         onClick={() => { setEditingId(t.id); setEditCategory(t.category || ''); }}
-                        className="text-sm text-gray-600 hover:text-indigo-600 text-left"
+                        className="text-sm text-gray-600 hover:text-blue-600 text-left"
+                        title="Click to edit category"
                       >
-                        {t.category || '—'}
+                        {t.category || '—'} <span className="text-gray-300 text-xs">✏</span>
                       </button>
                     )}
                   </td>
-                  <td className={`px-4 py-3 text-sm font-medium text-right ${amountColor(t.amount)}`}>
+                  <td className={`px-4 py-3 text-sm font-semibold text-right ${amountColor(t.amount)}`}>
                     {formatAmount(t.amount)}
                   </td>
                 </tr>
@@ -132,26 +153,37 @@ export default function TransactionsPage() {
 
       {/* Pagination */}
       {pagination && pagination.pages > 1 && (
-        <div className="flex items-center justify-between">
-          <p className="text-sm text-gray-500">
-            {pagination.total} transactions &middot; Page {pagination.currentPage} of {pagination.pages}
-          </p>
-          <div className="flex gap-2">
-            <button
-              onClick={() => setPage(p => Math.max(1, p - 1))}
-              disabled={page === 1}
-              className="px-3 py-1.5 text-sm border border-gray-300 rounded-md disabled:opacity-50 hover:bg-gray-50"
-            >
-              Previous
-            </button>
-            <button
-              onClick={() => setPage(p => Math.min(pagination.pages, p + 1))}
-              disabled={page >= pagination.pages}
-              className="px-3 py-1.5 text-sm border border-gray-300 rounded-md disabled:opacity-50 hover:bg-gray-50"
-            >
-              Next
-            </button>
-          </div>
+        <div className="flex items-center justify-center gap-2 mt-6">
+          <button
+            onClick={() => setPage(p => Math.max(1, p - 1))}
+            disabled={page === 1}
+            className="px-3 py-1 text-sm text-gray-500 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            ←
+          </button>
+          {Array.from({ length: Math.min(pagination.pages, 7) }, (_, i) => {
+            const p = i + 1;
+            return (
+              <button
+                key={p}
+                onClick={() => setPage(p)}
+                className={`px-3 py-1 text-sm rounded ${
+                  p === page ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                {p}
+              </button>
+            );
+          })}
+          {pagination.pages > 7 && <span className="text-gray-400">...</span>}
+          <button
+            onClick={() => setPage(p => Math.min(pagination.pages, p + 1))}
+            disabled={page >= pagination.pages}
+            className="px-3 py-1 text-sm text-gray-500 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            →
+          </button>
+          <span className="text-sm text-gray-500 ml-2">Page {pagination.currentPage} of {pagination.pages}</span>
         </div>
       )}
     </div>

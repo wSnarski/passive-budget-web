@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useRef } from 'react';
 import { useProjection } from '../hooks/useProjection';
 import { useAccounts } from '../hooks/useAccounts';
 import { useRecurring } from '../hooks/useRecurring';
@@ -12,11 +12,18 @@ export default function Dashboard() {
   const { projection, loading: projLoading, error: projError, refetch: refetchProj } = useProjection();
   const { accounts, loading: acctLoading, refetch: refetchAccts } = useAccounts();
   const { patterns, loading: recLoading, confirm, dismiss } = useRecurring();
+  const plaidBtnRef = useRef<HTMLDivElement>(null);
 
   const handlePlaidSuccess = useCallback(() => {
     refetchProj();
     refetchAccts();
   }, [refetchProj, refetchAccts]);
+
+  const handleLinkBank = useCallback(() => {
+    // Trigger the PlaidLinkButton's click programmatically
+    const btn = plaidBtnRef.current?.querySelector('button');
+    btn?.click();
+  }, []);
 
   return (
     <div className="space-y-6">
@@ -24,8 +31,10 @@ export default function Dashboard() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-4">
-          <AccountList accounts={accounts} loading={acctLoading} />
-          <PlaidLinkButton onSuccess={handlePlaidSuccess} />
+          <AccountList accounts={accounts} loading={acctLoading} onLinkBank={handleLinkBank} />
+          <div ref={plaidBtnRef}>
+            <PlaidLinkButton onSuccess={handlePlaidSuccess} />
+          </div>
         </div>
         <RecurringList patterns={patterns} loading={recLoading} onConfirm={confirm} onDismiss={dismiss} />
       </div>

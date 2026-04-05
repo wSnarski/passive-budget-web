@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useWhatIf } from '../../hooks/useWhatIf';
-import { formatAmount } from '../../utils/format';
+import { formatCurrency } from '../../utils/format';
 
 export default function WhatIfForm() {
   const [amount, setAmount] = useState('');
@@ -16,53 +16,49 @@ export default function WhatIfForm() {
   };
 
   return (
-    <div className="border-t border-indigo-500 pt-4">
-      <p className="text-xs text-indigo-200 uppercase tracking-wide mb-2">What-If Calculator</p>
-      <form onSubmit={handleSubmit} className="flex gap-2 mb-2">
-        <input
-          type="number"
-          step="0.01"
-          placeholder="Amount"
-          value={amount}
-          onChange={e => setAmount(e.target.value)}
-          className="flex-1 rounded-md px-3 py-1.5 text-sm text-gray-900 bg-white/90 border-0 outline-none placeholder-gray-400"
-        />
+    <div className="border-t border-gray-100 pt-4 mt-4">
+      <p className="text-sm font-medium text-gray-700 mb-2">What-If Calculator</p>
+      <form onSubmit={handleSubmit} className="flex gap-3 items-center">
+        <div className="relative">
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">$</span>
+          <input
+            type="number"
+            step="0.01"
+            placeholder="0.00"
+            value={amount}
+            onChange={e => setAmount(e.target.value)}
+            className="pl-7 pr-3 py-2 border border-gray-300 rounded-md w-40 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          />
+        </div>
         <input
           type="text"
           placeholder="Category (optional)"
           value={category}
           onChange={e => setCategory(e.target.value)}
-          className="flex-1 rounded-md px-3 py-1.5 text-sm text-gray-900 bg-white/90 border-0 outline-none placeholder-gray-400"
+          className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         />
         <button
           type="submit"
           disabled={loading || !amount}
-          className="px-4 py-1.5 bg-white/20 hover:bg-white/30 rounded-md text-sm font-medium disabled:opacity-50 transition-colors"
+          className="bg-gray-900 text-white px-4 py-2 rounded-md text-sm hover:bg-gray-800 disabled:opacity-50 transition-colors"
         >
           {loading ? '...' : 'Calculate'}
         </button>
       </form>
 
-      {error && <p className="text-xs text-red-300">{error}</p>}
+      {error && <p className="text-sm text-red-600 mt-2">{error}</p>}
 
       {result && (
-        <div className="bg-white/10 rounded-md p-3 text-sm">
-          <div className="flex justify-between mb-1">
-            <span className="text-indigo-200">Current net:</span>
-            <span>{formatAmount(result.currentNet, false)}</span>
+        <div className="mt-3">
+          <p className={`text-sm italic ${result.willStillSave ? 'text-green-600' : 'text-red-600'}`}>
+            {result.summary}
+          </p>
+          <div className="flex gap-6 mt-2 text-sm text-gray-500">
+            <span>Current net: {formatCurrency(result.currentNet)}</span>
+            <span>After: {formatCurrency(result.afterNet)}</span>
+            <span>Impact: {result.impact >= 0 ? '+' : '-'}{formatCurrency(result.impact)}</span>
           </div>
-          <div className="flex justify-between mb-1">
-            <span className="text-indigo-200">After:</span>
-            <span>{formatAmount(result.afterNet, false)}</span>
-          </div>
-          <div className="flex justify-between mb-1">
-            <span className="text-indigo-200">Impact:</span>
-            <span className={result.impact >= 0 ? 'text-green-300' : 'text-red-300'}>
-              {formatAmount(result.impact, false)}
-            </span>
-          </div>
-          <p className="text-xs text-indigo-200 mt-2">{result.summary}</p>
-          <button onClick={reset} className="text-xs text-indigo-200 underline mt-1">Clear</button>
+          <button onClick={reset} className="text-xs text-gray-400 hover:text-gray-600 mt-1">Clear</button>
         </div>
       )}
     </div>
