@@ -10,8 +10,8 @@ export function listTransactions(params?: {
   endDate?: string;
 }) {
   const query: Record<string, string> = {};
-  if (params?.limit) query.limit = String(params.limit);
-  if (params?.offset) query.offset = String(params.offset);
+  if (params?.limit != null) query.limit = String(params.limit);
+  if (params?.offset != null) query.offset = String(params.offset);
   if (params?.accountId) query.accountId = params.accountId;
   if (params?.category) query.category = params.category;
   if (params?.startDate) query.startDate = params.startDate;
