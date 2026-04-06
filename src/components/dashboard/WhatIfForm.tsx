@@ -1,6 +1,16 @@
 import { useState } from 'react';
 import { useWhatIf } from '../../hooks/useWhatIf';
 import { formatCurrency } from '../../utils/format';
+import type { WhatIfResponse } from '../../types/api';
+
+function whatIfColor(result: WhatIfResponse): string {
+  if (result.willStillSaveWorstCase !== undefined) {
+    if (result.willStillSaveWorstCase) return 'text-green-600';
+    if (result.willStillSaveBestCase) return 'text-yellow-600';
+    return 'text-red-600';
+  }
+  return result.willStillSave ? 'text-green-600' : 'text-red-600';
+}
 
 export default function WhatIfForm() {
   const [amount, setAmount] = useState('');
@@ -50,7 +60,7 @@ export default function WhatIfForm() {
 
       {result && (
         <div className="mt-3">
-          <p className={`text-sm italic ${result.willStillSave ? 'text-green-600' : 'text-red-600'}`}>
+          <p className={`text-sm italic ${whatIfColor(result)}`}>
             {result.summary}
           </p>
           <div className="flex gap-6 mt-2 text-sm text-gray-500">
@@ -58,6 +68,13 @@ export default function WhatIfForm() {
             <span>After: <span className={result.afterNet >= 0 ? 'text-green-600' : 'text-red-600'}>{formatCurrency(result.afterNet)}</span></span>
             <span>Impact: {result.impact >= 0 ? '+' : '-'}{formatCurrency(result.impact)}</span>
           </div>
+          {result.afterNetLow !== undefined && result.afterNetHigh !== undefined &&
+           Math.abs(result.afterNetHigh - result.afterNetLow) > 0.01 && (
+            <div className="flex gap-6 mt-1 text-xs text-gray-400">
+              <span>Best case: <span className={result.afterNetHigh >= 0 ? 'text-green-600' : 'text-red-600'}>{formatCurrency(result.afterNetHigh)}</span></span>
+              <span>Worst case: <span className={result.afterNetLow >= 0 ? 'text-green-600' : 'text-red-600'}>{formatCurrency(result.afterNetLow)}</span></span>
+            </div>
+          )}
           <button onClick={reset} className="text-xs text-gray-400 hover:text-gray-600 mt-1">Clear</button>
         </div>
       )}

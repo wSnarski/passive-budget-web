@@ -87,6 +87,10 @@ export interface Projection {
   actualIncome: number;
   actualExpenses: number;
   projectedNet: number;
+  projectedNetLow: number | null;
+  projectedNetHigh: number | null;
+  confidenceLevel: number | null;
+  confidenceTier: 'high' | 'moderate' | 'low';
   calculatedAt: string;
   summary: string;
 }
@@ -94,6 +98,10 @@ export interface Projection {
 export interface WhatIfResponse {
   currentNet: number;
   afterNet: number;
+  afterNetLow: number;
+  afterNetHigh: number;
+  willStillSaveBestCase: boolean;
+  willStillSaveWorstCase: boolean;
   impact: number;
   willStillSave: boolean;
   summary: string;

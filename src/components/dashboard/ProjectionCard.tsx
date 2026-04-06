@@ -2,6 +2,19 @@ import type { Projection } from '../../types/api';
 import { formatCurrency, relativeTime } from '../../utils/format';
 import WhatIfForm from './WhatIfForm';
 
+function formatRange(low: number, high: number): string {
+  if (low < 0 && high >= 0) {
+    return `-${formatCurrency(Math.abs(low))} to +${formatCurrency(high)}`;
+  }
+  return `${formatCurrency(low)} to ${formatCurrency(high)}`;
+}
+
+const confidenceBadge: Record<Projection['confidenceTier'], { bg: string; label: string }> = {
+  high: { bg: 'bg-green-100 text-green-700', label: 'High confidence' },
+  moderate: { bg: 'bg-yellow-100 text-yellow-700', label: 'Moderate confidence' },
+  low: { bg: 'bg-gray-100 text-gray-500', label: 'Low confidence' },
+};
+
 interface Props {
   projection: Projection | null;
   loading: boolean;
@@ -51,7 +64,12 @@ export default function ProjectionCard({ projection, loading, error }: Props) {
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
       <div className="flex items-start justify-between mb-1">
-        <h2 className="text-xl font-semibold text-gray-900">{projection.month} Projection</h2>
+        <div className="flex items-center gap-2">
+          <h2 className="text-xl font-semibold text-gray-900">{projection.month} Projection</h2>
+          <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${confidenceBadge[projection.confidenceTier].bg}`}>
+            {confidenceBadge[projection.confidenceTier].label}
+          </span>
+        </div>
         <span className="text-sm text-gray-400">Calculated {relativeTime(projection.calculatedAt)}</span>
       </div>
 
@@ -75,6 +93,12 @@ export default function ProjectionCard({ projection, loading, error }: Props) {
           <p className={`text-2xl font-bold ${netColor}`}>
             {projection.projectedNet >= 0 ? '+' : '-'}{formatCurrency(projection.projectedNet)}
           </p>
+          {projection.projectedNetLow != null && projection.projectedNetHigh != null &&
+           Math.abs(projection.projectedNetHigh - projection.projectedNetLow) > 0.01 && (
+            <p className="text-xs text-gray-400 mt-1">
+              {formatRange(projection.projectedNetLow, projection.projectedNetHigh)}
+            </p>
+          )}
         </div>
       </div>
 
