@@ -50,3 +50,12 @@ export function relativeTime(dateStr: string): string {
   const days = Math.floor(hours / 24);
   return `${days}d ago`;
 }
+
+export function formatAmountRange(avg: number, stdDev: number): string {
+  const absAvg = Math.abs(avg);
+  const lo = Math.max(0, absAvg - stdDev);
+  const hi = absAvg + stdDev;
+  const fmt = (n: number) =>
+    `$${n.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+  return `${fmt(lo)} – ${fmt(hi)}`;
+}

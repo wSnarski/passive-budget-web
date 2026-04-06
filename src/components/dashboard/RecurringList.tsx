@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { RecurringPattern } from '../../types/api';
-import { formatAmount, amountColor } from '../../utils/format';
+import { formatAmount, formatAmountRange, amountColor } from '../../utils/format';
 
 interface Props {
   patterns: RecurringPattern[];
@@ -28,6 +28,10 @@ export default function RecurringList({ patterns, loading, onConfirm, onDismiss 
   const inflows = visible.filter(p => p.direction === 'inflow');
   const outflows = visible.filter(p => p.direction === 'outflow');
 
+  const isVariable = (p: RecurringPattern) =>
+    p.amountStdDev != null && Math.abs(p.averageAmount) > 0 &&
+    p.amountStdDev / Math.abs(p.averageAmount) > 0.05;
+
   const renderItem = (p: RecurringPattern) => {
     const isLowConfidence = p.confidence < 0.7;
     const dotColor = isLowConfidence
@@ -44,10 +48,19 @@ export default function RecurringList({ patterns, loading, onConfirm, onDismiss 
             <span className="text-sm font-medium text-gray-900 truncate">{p.merchantName || p.name}</span>
           </div>
           <div className="flex items-center gap-2 ml-2 shrink-0">
-            <span className={`text-sm font-semibold ${amountColor(p.averageAmount)}`}>
-              {formatAmount(p.averageAmount)}
-            </span>
+            {isVariable(p) ? (
+              <span className="text-sm text-gray-500" title={`Avg: ${formatAmount(p.averageAmount)}`}>
+                {formatAmountRange(p.averageAmount, p.amountStdDev!)}
+              </span>
+            ) : (
+              <span className={`text-sm font-semibold ${amountColor(p.averageAmount)}`}>
+                {formatAmount(p.averageAmount)}
+              </span>
+            )}
             <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-600">{p.frequency}</span>
+            {isVariable(p) && (
+              <span className="text-xs px-2 py-0.5 rounded-full bg-purple-50 text-purple-600">varies</span>
+            )}
           </div>
         </div>
         {isLowConfidence && (

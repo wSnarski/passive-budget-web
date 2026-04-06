@@ -73,32 +73,47 @@ export default function ProjectionCard({ projection, loading, error }: Props) {
         <span className="text-sm text-gray-400">Calculated {relativeTime(projection.calculatedAt)}</span>
       </div>
 
-      <div className="grid grid-cols-3 gap-4 my-6">
-        <div className="text-center">
-          <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Income</p>
-          <p className="text-2xl font-bold text-green-600">{formatCurrency(projection.projectedIncome)}</p>
-          {projection.actualIncome > 0 && (
-            <p className="text-xs text-gray-400 mt-1">Actual: {formatCurrency(projection.actualIncome)}</p>
-          )}
-        </div>
-        <div className="text-center">
-          <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Expenses</p>
-          <p className="text-2xl font-bold text-red-600">{formatCurrency(projection.projectedExpenses)}</p>
-          {projection.actualExpenses > 0 && (
-            <p className="text-xs text-gray-400 mt-1">Actual: {formatCurrency(projection.actualExpenses)}</p>
-          )}
-        </div>
-        <div className="text-center">
-          <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Net</p>
-          <p className={`text-2xl font-bold ${netColor}`}>
-            {projection.projectedNet >= 0 ? '+' : '-'}{formatCurrency(projection.projectedNet)}
+      <div className="text-center my-6">
+        <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+          Estimated {projection.projectedNet >= 0 ? 'Savings' : 'Overspend'}
+        </p>
+        <p className={`text-4xl font-extrabold ${netColor} mt-1`}>
+          {projection.projectedNet >= 0 ? '+' : '-'}{formatCurrency(projection.projectedNet)}
+        </p>
+        {projection.projectedNetLow != null && projection.projectedNetHigh != null &&
+         Math.abs(projection.projectedNetHigh - projection.projectedNetLow) > 0.01 && (
+          <p className="text-sm text-gray-400 mt-1">
+            {formatRange(projection.projectedNetLow, projection.projectedNetHigh)}
           </p>
-          {projection.projectedNetLow != null && projection.projectedNetHigh != null &&
-           Math.abs(projection.projectedNetHigh - projection.projectedNetLow) > 0.01 && (
-            <p className="text-xs text-gray-400 mt-1">
-              {formatRange(projection.projectedNetLow, projection.projectedNetHigh)}
-            </p>
-          )}
+        )}
+      </div>
+
+      <div className="grid grid-cols-2 gap-6 my-6">
+        <div className="bg-green-50 rounded-lg p-4">
+          <p className="text-sm font-semibold text-gray-700 mb-3">Income</p>
+          <div className="space-y-2">
+            <div className="flex justify-between items-baseline">
+              <span className="text-xs text-gray-500">Actual</span>
+              <span className="text-lg font-bold text-green-600">{formatCurrency(projection.actualIncome)}</span>
+            </div>
+            <div className="flex justify-between items-baseline">
+              <span className="text-xs text-gray-500">Projected</span>
+              <span className="text-lg font-bold text-green-600/60">{formatCurrency(projection.projectedIncome)}</span>
+            </div>
+          </div>
+        </div>
+        <div className="bg-red-50 rounded-lg p-4">
+          <p className="text-sm font-semibold text-gray-700 mb-3">Expenses</p>
+          <div className="space-y-2">
+            <div className="flex justify-between items-baseline">
+              <span className="text-xs text-gray-500">Actual</span>
+              <span className="text-lg font-bold text-red-600">{formatCurrency(projection.actualExpenses)}</span>
+            </div>
+            <div className="flex justify-between items-baseline">
+              <span className="text-xs text-gray-500">Projected</span>
+              <span className="text-lg font-bold text-red-600/60">{formatCurrency(projection.projectedExpenses)}</span>
+            </div>
+          </div>
         </div>
       </div>
 

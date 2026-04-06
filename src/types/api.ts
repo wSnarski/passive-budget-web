@@ -66,6 +66,7 @@ export interface RecurringPattern {
   name: string;
   merchantName: string;
   averageAmount: number;
+  amountStdDev: number | null;
   frequency: string;
   direction: string;
   category: string | null;
